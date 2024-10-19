@@ -97,6 +97,3 @@ typings/
 
 # Electron-Forge
 out/
-
-# Tailwind CSS
-src/renderer/styles/tailwind.output.css

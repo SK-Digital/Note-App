@@ -22,6 +22,111 @@
         .ql-toolbar.ql-snow .ql-fill {
             fill: #f43434;
         }
+        .ql-todo {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            display: inline-block;
+            margin-right: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ql-todo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #f43434;
+            border-radius: 4px;
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .ql-todo[data-checked="true"]::before {
+            background-color: #f43434;
+        }
+
+        .ql-todo[data-checked="true"]::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Custom todo icon in toolbar */
+        .ql-snow .ql-toolbar button.ql-todo,
+        .ql-snow.ql-toolbar button.ql-todo {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .ql-snow .ql-toolbar button.ql-todo svg,
+        .ql-snow.ql-toolbar button.ql-todo svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .ql-snow .ql-toolbar button.ql-todo:hover .ql-stroke,
+        .ql-snow.ql-toolbar button.ql-todo:hover .ql-stroke {
+            stroke: #f43434;
+        }
+
+        .ql-snow .ql-toolbar button.ql-todo:hover .ql-fill,
+        .ql-snow.ql-toolbar button.ql-todo:hover .ql-fill {
+            fill: #f43434;
+        }
+
+        /* Custom checkbox styles */
+        .ql-editor .checkbox-item {
+            padding-left: 24px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .ql-editor .checkbox-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f43434;
+            border-radius: 3px;
+        }
+
+        .ql-editor .checkbox-item[data-checked="true"]::before {
+            background-color: #f43434;
+        }
+
+        .ql-editor .checkbox-item[data-checked="true"]::after {
+            content: '✓';
+            position: absolute;
+            left: 3px;
+            top: 0;
+            color: white;
+            font-size: 14px;
+        }
+
+        .ql-snow .ql-toolbar button.ql-checkbox,
+        .ql-snow.ql-toolbar button.ql-checkbox {
+            background: none;
+            border: none;
+        }
+
+        .ql-snow .ql-toolbar button.ql-checkbox::after,
+        .ql-snow.ql-toolbar button.ql-checkbox::after {
+            content: '☐';
+            font-size: 18px;
+            color: #f43434;
+        }
     </style>
 </head>
 <body class="bg-alchemy-light dark:bg-alchemy-dark text-gray-800 dark:text-gray-200">

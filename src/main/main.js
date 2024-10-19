@@ -18,8 +18,10 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   
-  // Remove this line to stop opening DevTools automatically
-  // mainWindow.webContents.openDevTools();
+  // Open DevTools automatically in development mode
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
 }
 
 app.whenReady().then(() => {

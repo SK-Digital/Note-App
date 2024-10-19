@@ -5,9 +5,9 @@
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
     "build": "electron-builder --win",
     "build:all": "electron-builder -mwl",
-    "dev": "concurrently \"npm run start\" \"npm run watch:css\"",
     "watch:css": "postcss src/renderer/styles/tailwind.css -o src/renderer/styles/tailwind.output.css --watch"
   },
   "keywords": [

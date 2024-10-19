@@ -1,4 +1,6 @@
 const { ipcRenderer } = require('electron');
+const Quill = require('quill');
+const Delta = Quill.import('delta');
 
 let currentNote = null;
 let notes = [];
@@ -7,6 +9,45 @@ let currentFolder = null;
 let editor;
 let folderSelect;
 let noteTitleInput;
+
+// Add this before the DOMContentLoaded event listener
+const CheckboxBlot = Quill.import('blots/block');
+
+class TodoItem extends CheckboxBlot {
+  static create(value) {
+    const node = super.create(value);
+    node.setAttribute('data-checked', value);
+    node.textContent = '\u2610 '; // Unchecked box
+    return node;
+  }
+
+  static formats(node) {
+    return node.getAttribute('data-checked') === 'true';
+  }
+
+  format(name, value) {
+    if (name === 'todo' && value === true) {
+      this.domNode.setAttribute('data-checked', 'true');
+      this.domNode.textContent = '\u2611 '; // Checked box
+    } else if (name === 'todo' && value === false) {
+      this.domNode.setAttribute('data-checked', 'false');
+      this.domNode.textContent = '\u2610 '; // Unchecked box
+    } else {
+      super.format(name, value);
+    }
+  }
+}
+
+TodoItem.blotName = 'todo';
+TodoItem.tagName = 'DIV';
+Quill.register(TodoItem);
+
+// Custom clipboard matcher for todo items
+const matchTodoItem = (node, delta) => {
+  if (node.nodeType !== Node.ELEMENT_NODE) return;
+  const isChecked = node.getAttribute('data-checked') === 'true';
+  return delta.compose(new Delta().retain(delta.length(), { todo: isChecked }));
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Quill
@@ -20,8 +61,24 @@ document.addEventListener('DOMContentLoaded', () => {
         [{ 'color': [] }, { 'background': [] }],
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         ['link', 'image'],
+        ['checkbox'], // Add this line
         ['clean']
-      ]
+      ],
+      clipboard: {
+        matchers: [
+          ['DIV', matchTodoItem]
+        ]
+      }
+    }
+  });
+
+  // Add custom checkbox button to toolbar
+  const toolbar = editor.getModule('toolbar');
+  toolbar.addHandler('checkbox', function() {
+    const range = editor.getSelection();
+    if (range) {
+      const currentFormat = editor.getFormat(range);
+      editor.format('list', currentFormat.list === 'checked' ? false : 'checked');
     }
   });
 
@@ -200,11 +257,22 @@ document.addEventListener('DOMContentLoaded', () => {
     noteElement.draggable = true;
     noteElement.dataset.noteId = note.id;
     
+    const titleContainer = document.createElement('div');
+    titleContainer.className = 'flex items-center flex-grow';
+    
+    const iconImg = document.createElement('img');
+    iconImg.src = './assets/note-icon.svg';
+    iconImg.alt = 'Note';
+    iconImg.className = 'w-5 h-5 mr-2';
+    titleContainer.appendChild(iconImg);
+
     const titleSpan = document.createElement('span');
     titleSpan.textContent = note.title;
     titleSpan.className = 'flex-grow';
-    titleSpan.addEventListener('click', () => loadNote(note));
-    noteElement.appendChild(titleSpan);
+    titleContainer.appendChild(titleSpan);
+
+    titleContainer.addEventListener('click', () => loadNote(note));
+    noteElement.appendChild(titleContainer);
 
     const buttonsDiv = document.createElement('div');
     buttonsDiv.className = 'flex items-center';
@@ -491,4 +559,15 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Error deleting folder:', error);
     }
   }
+
+  // Add click handler for todo items
+  editor.root.addEventListener('click', (event) => {
+    const listItem = event.target.closest('li');
+    if (listItem && listItem.getAttribute('data-list') === 'checked') {
+      const index = editor.getIndex(listItem);
+      const length = listItem.textContent.length;
+      const format = editor.getFormat(index, length);
+      editor.formatText(index, length, 'list', format.list === 'checked' ? 'unchecked' : 'checked');
+    }
+  });
 });
